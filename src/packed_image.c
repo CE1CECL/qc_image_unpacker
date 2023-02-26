@@ -67,7 +67,7 @@ static bool process_fbpt(u1 *buf, size_t bufSz) {
   return true;
 }
 
-bool packed_image_extract(u1 *buf, size_t bufSz, char *outputDir) {
+bool packed_image_extract(u1 *buf, size_t bufSz, char *filePath, char *outputDir) {
   packed_header_t *pPackedHeader;
   packed_img_header_entry_t *pImgHeaderEntry;
   u1 *pLastValidEntry, *pImageEnd;
@@ -113,7 +113,7 @@ bool packed_image_extract(u1 *buf, size_t bufSz, char *outputDir) {
 
   // Create output root directory to place extracted images
   memset(outPath, 0, sizeof(outPath));
-  snprintf(outPath, sizeof(outPath), "%s", outputDir);
+  snprintf(outPath, sizeof(outPath), "%s/%s_images", outputDir, utils_fileBasename(filePath));
   if (mkdir(outPath, 0755) && errno != EEXIST) {
     LOGMSG_P(l_ERROR, "mkdir(%s) failed", outPath);
     return false;
@@ -149,7 +149,7 @@ bool packed_image_extract(u1 *buf, size_t bufSz, char *outputDir) {
 
     // Write output file
     memset(outFile, 0, sizeof(outFile));
-    if (snprintf(outFile, sizeof(outFile), "%s/%s.img", outPath, pImgHeaderEntry->partition_name) < 0) {
+    if (snprintf(outFile, sizeof(outFile), "%s/%s", outPath, pImgHeaderEntry->partition_name) < 0) {
       LOGMSG(l_ERROR, "Failed to construct output path");
       return false;
     }

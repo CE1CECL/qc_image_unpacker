@@ -39,7 +39,7 @@ bool bootldr_image_detect(u1 *buf, size_t bufSz)
            (pBootLdrHeader->magic2 == BOOTLDR_IMG_MAGIC2);
 }
 
-bool bootldr_image_extract(u1 *buf, size_t bufSz, char *outputDir) {
+bool bootldr_image_extract(u1 *buf, size_t bufSz, char *filePath, char *outputDir) {
   bootldr_header_t *pBootLdrHeader;
   bootldr_img_header_entry_t *pImgHeaderEntry;
   u4 i = 0, j = 0, images, start_offset;
@@ -76,7 +76,7 @@ bool bootldr_image_extract(u1 *buf, size_t bufSz, char *outputDir) {
 
   // Create output root directory to place extracted images
   memset(outPath, 0, sizeof(outPath));
-  snprintf(outPath, sizeof(outPath), "%s", outputDir);
+  snprintf(outPath, sizeof(outPath), "%s/%s_images", outputDir, utils_fileBasename(filePath));
   if (mkdir(outPath, 0755) && errno != EEXIST) {
     LOGMSG_P(l_ERROR, "mkdir(%s) failed", outPath);
     return false;
@@ -108,7 +108,7 @@ bool bootldr_image_extract(u1 *buf, size_t bufSz, char *outputDir) {
 
     // Write output file
     memset(outFile, 0, sizeof(outFile));
-    if (snprintf(outFile, sizeof(outFile), "%s/%s.img", outPath, pImgHeaderEntry[i].ptn_name) < 0) {
+    if (snprintf(outFile, sizeof(outFile), "%s/%s", outPath, pImgHeaderEntry[i].ptn_name) < 0) {
       LOGMSG(l_ERROR, "Failed to construct output path string");
       return false;
     }
